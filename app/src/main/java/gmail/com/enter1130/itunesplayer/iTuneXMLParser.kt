@@ -22,9 +22,9 @@ class iTuneXMLParser {
                         if(parser.name=="title" && parser.depth==3){
                             title=parser.nextText()
                         }
-                        if(parser.name=="yt:videoId" && parser.depth==3){
-                            Log.i("id",parser.nextText())
-                        }
+//                        if(parser.name=="yt:videoId" && parser.depth==3){
+//                            Log.i("id",parser.nextText())
+//                        }
                     }
                     XmlPullParser.END_TAG->{
                         if(parser.name=="entry"){
