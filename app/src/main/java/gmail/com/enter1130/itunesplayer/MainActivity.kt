@@ -11,6 +11,7 @@ import android.widget.Button
 import android.widget.LinearLayout
 import android.widget.ListView
 import android.widget.TextView
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -41,20 +42,35 @@ import kotlinx.coroutines.withContext
 //}
 
 class MainActivity : ListActivity() {
+    var result= mutableListOf<String>()
+
+    // 只有swiperRefreshLayoyt的時候才會執行
+    val adapter by lazy{
+        ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, result);
+    }
+
+    val swiperRefreshLayoyt by lazy{
+        findViewById<SwipeRefreshLayout>(R.id.swiperRefreshLayout)
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-
-        var result= mutableListOf<String>()
-
-        val adapter= ArrayAdapter<String>(this,
-            android.R.layout.simple_list_item_1,
-            result);
+        // layout 名稱
+        setContentView(R.layout.activity_swipe_refresh)
         listAdapter=adapter;
+        swiperRefreshLayoyt.setOnRefreshListener {
+            result.clear()
+            loadList()
+        }
 
+        loadList()
+    }
+
+    fun loadList(){
         GlobalScope.launch(Dispatchers.Main) {
+            var songs= listOf<SongData>()
+            //刷新
+            swiperRefreshLayoyt.isRefreshing=true
             withContext(Dispatchers.IO){
-                var songs= listOf<SongData>()
                 withContext(Dispatchers.IO){
                     songs=iTuneXMLParser().parseURL(""+"https://www.youtube.com/feeds/videos.xml?channel_id=UCupvZG-5ko_eiXAupbDfxWw")
                 }
@@ -64,8 +80,9 @@ class MainActivity : ListActivity() {
             }
 
             adapter.notifyDataSetChanged()
+
+            //song 加入 result後停止刷新
+            swiperRefreshLayoyt.isRefreshing=false
         }
-
-
     }
 }
